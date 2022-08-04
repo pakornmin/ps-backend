@@ -21,15 +21,9 @@ const swaggerOptions = {
           name: "Min Nunta-aree",
           email: "pakornmin@@gmail.com",
         },
-        servers: [
-			{
-				test: "http://localhost:3000",
-                prod: "http://54.87.165.8:3000/"
-			},
-		],
       },
     },
-    apis: ["./controllers/*.js"],
+    apis: [`${__dirname}/controllers/*.js`],
 };
   
 
