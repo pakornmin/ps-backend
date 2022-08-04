@@ -5,15 +5,92 @@ const PopularInformation = require('../models/PopularInformation');
 const Url = require('../models/Url');
 const StoreCategory = require('../models/StoreCategory');
 const BrandIssues = require('../models/BrandIssues');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 require('dotenv').config();
+
+
+
+
+/**
+  * @swagger
+  * tags:
+  *   name: All info
+  *   description: The API for managing all info about companies 
+  */
+
+
 
 //health check
 router.get('/', (req, res)=>{
     res.send('all info is working');
 })
 
+
+
+/**
+ * @swagger
+ * /allInfo/getOneCompany/{url}:
+ *   get:
+ *     summary: Get one company's all info
+ *     tags: [All info]
+ *     parameters:
+ *       - in: path
+ *         name: url
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The company's domain
+ *     responses:
+ *       200:
+ *         description: the company's info is retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 name:
+ *                   type: string
+ *                 url:
+ *                   type: string
+ *                 category:
+ *                   type: string
+ *                 politicalData:
+ *                   type: object
+ *                   properties: 
+ *                     total:
+ *                       type: number
+ *                     totalDemocrat: 
+ *                       type: number
+ *                     totalPAC:
+ *                       type: number
+ *                     democratPAC:
+ *                       type: number
+ *                     totalEmployee:
+ *                       type: number
+ *                     democratEmployee:
+ *                       type: number
+ *                     analysis: 
+ *                       type: number
+ *                     recomendation:
+ *                       type: number
+ *                 popularInformation: 
+ *                   type: object
+ *                   properties:
+ *                     score:
+ *                       type: string
+ *                     antiAbortionDonation:
+ *                       type: boolean
+ *                 issueList:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Issue'
+ * 
+ *       400:
+ *         description: url does not exist in the database
+ */
 //get all information about one company
-router.get('/getAllInfoOneCompany/:url', async (req, res) => {
+router.get('/getOneCompany/:url', async (req, res) => {
     try {
         const politicalData = await PoliticalData.findOne({url: req.params.url});
         const popularInformation = await PopularInformation.findOne({url: req.params.url});
@@ -49,7 +126,6 @@ router.get('/getAllInfoOneCompany/:url', async (req, res) => {
             delete jsonPopularInfo.name;
             delete jsonPopularInfo.url;
         }
-        //console.log(jsonResult)
 
         const result = { 
                             name: name, 
@@ -61,28 +137,95 @@ router.get('/getAllInfoOneCompany/:url', async (req, res) => {
                         }
         res.json(result);
     } catch(err) {
-        //console.log(err)
-        res.sendStatus(400)
+        res.status(400).json({message: 'url does not exist in the database'});
     }
 });
 
+
+
+
+
+/**
+ * @swagger
+ * /allInfo/getAllCompanies/:
+ *   get:
+ *     summary: Get every company's all info
+ *     tags: [All info]
+ *     responses:
+ *       200:
+ *         description: companies' info is retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   url:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *                   politicalData:
+ *                     type: object
+ *                     properties: 
+ *                       total:
+ *                         type: number
+ *                       totalDemocrat: 
+ *                         type: number
+ *                       totalPAC:
+ *                         type: number
+ *                       democratPAC:
+ *                         type: number
+ *                       totalEmployee:
+ *                         type: number
+ *                       democratEmployee:
+ *                         type: number
+ *                       analysis: 
+ *                         type: number
+ *                       recomendation:
+ *                         type: number
+ *                   popularInformation: 
+ *                     type: object
+ *                     properties:
+ *                       score:
+ *                         type: string
+ *                       antiAbortionDonation:
+ *                         type: boolean
+ *                   issueList:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Issue'
+ * 
+ *       400:
+ *         description: url does not exist in the database
+ */
 //get all information about every company
-router.get('/getAllInfoEveryCompany', async (req, res) => {
+router.get('/getAllCompanies', async (req, res) => {
     try {
-        const allCompanies = await BrandIssues.find();
+        const allUrl = await Url.find();
         let response = [];
-        const length = allCompanies.length;
+        const length = allUrl.length;
+        console.log(length)
         for(let i = 0; i < length; i++) {
-            const url = allCompanies[i].url;
+            const url = allUrl[i].url;
+            const brandIssues = await BrandIssues.findOne({url: url});
             const politicalData = await PoliticalData.findOne({url: url});
             const popularInformation = await PopularInformation.findOne({url: url});
-            const brandIssues = allCompanies[i];
             let jsonBrandIssues = null;
             let jsonPoliticalData = null;
             let jsonPopularInfo = null;
-            const name = allCompanies[i].name;
+            let name = null;
+            let category = null;
+            let iconPath = null;
+            let issueList = [];
             if(brandIssues) {
                 jsonBrandIssues = brandIssues.toJSON();
+                name =  jsonBrandIssues.name;
+                category = jsonBrandIssues.category;
+                iconPath = jsonBrandIssues.iconPath;
+                issueList = jsonBrandIssues.issueList;
                 delete jsonBrandIssues._id;
                 delete jsonBrandIssues.__v;
                 delete jsonBrandIssues.name;
@@ -105,21 +248,83 @@ router.get('/getAllInfoEveryCompany', async (req, res) => {
             response.push({
                             name: name, 
                             url: url, 
-                            category: jsonBrandIssues.category,
-                            iconPath: jsonBrandIssues.iconPath,
+                            category: category,
+                            iconPath: iconPath,
                             politicalData: jsonPoliticalData, 
                             popularInformation: jsonPopularInfo, 
-                            issueList: jsonBrandIssues.issueList
+                            issueList: issueList
             });
         }
         res.json(response);
     } catch(err) {
-        //console.log(err)
-        res.send({err: err});
+        res.status(400).json({message: "cannot get all companies' information"});
     }
 });
 
 
+
+/**
+ * @swagger
+ * /allInfo/searchByName/{name}:
+ *   get:
+ *     summary: Get companies with the searched 'name' in their name
+ *     tags: [All info]
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: companies' info is retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   url:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *                   politicalData:
+ *                     type: object
+ *                     properties: 
+ *                       total:
+ *                         type: number
+ *                       totalDemocrat: 
+ *                         type: number
+ *                       totalPAC:
+ *                         type: number
+ *                       democratPAC:
+ *                         type: number
+ *                       totalEmployee:
+ *                         type: number
+ *                       democratEmployee:
+ *                         type: number
+ *                       analysis: 
+ *                         type: number
+ *                       recomendation:
+ *                         type: number
+ *                   popularInformation: 
+ *                     type: object
+ *                     properties:
+ *                       score:
+ *                         type: string
+ *                       antiAbortionDonation:
+ *                         type: boolean
+ *                   issueList:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Issue'
+ * 
+ *       400:
+ *         description: url does not exist in the database
+ */
 //search companies information by names
 router.get('/searchByName/:name', async (req, res) => {
     try {
@@ -170,10 +375,75 @@ router.get('/searchByName/:name', async (req, res) => {
         }
         res.json(response);
     } catch(err) {
-        //console.log(err)
-        res.send({err: err});
+        res.status(400).json({message: "cannot get companies' information"});
     }
 });
+
+
+
+
+/**
+ * @swagger
+ * /allInfo/getCompaniesByCategory/{category}:
+ *   get:
+ *     summary: Get companies within the category 
+ *     tags: [All info]
+ *     parameters:
+ *       - in: path
+ *         name: category
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: companies' info is retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   url:
+ *                     type: string
+ *                   category:
+ *                     type: string
+ *                   politicalData:
+ *                     type: object
+ *                     properties: 
+ *                       total:
+ *                         type: number
+ *                       totalDemocrat: 
+ *                         type: number
+ *                       totalPAC:
+ *                         type: number
+ *                       democratPAC:
+ *                         type: number
+ *                       totalEmployee:
+ *                         type: number
+ *                       democratEmployee:
+ *                         type: number
+ *                       analysis: 
+ *                         type: number
+ *                       recomendation:
+ *                         type: number
+ *                   popularInformation: 
+ *                     type: object
+ *                     properties:
+ *                       score:
+ *                         type: string
+ *                       antiAbortionDonation:
+ *                         type: boolean
+ *                   issueList:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Issue'
+ * 
+ *       400:
+ *         description: url does not exist in the database
+ */
 //get companies by category 
 router.get('/getCompaniesByCategory/:category', async (req, res) => {
     try {
@@ -222,8 +492,7 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
         }
         res.json(response);
     } catch(err) {
-        //console.log(err)
-        res.send({err: err});
+        res.status(400).json({message: "cannot get companies in the category"});
     }
 });
 

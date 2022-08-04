@@ -1,9 +1,42 @@
 const express = require('express');
 const app = express();
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors =  require('cors');
 require('dotenv').config();
+
+
+//Swagger Option
+const swaggerOptions = {
+    definition: {
+      openapi: "3.0.0",
+      info: {
+        title: "Progressive Shopper API with Swagger",
+        version: "1.0.0",
+        description:
+          "This is a simple CRUD API application made with Express and documented with Swagger",
+        contact: {
+          name: "Min Nunta-aree",
+          email: "pakornmin@@gmail.com",
+        },
+        servers: [
+			{
+				test: "http://localhost:3000",
+                prod: "http://54.87.165.8:3000/"
+			},
+		],
+      },
+    },
+    apis: ["./controllers/*.js"],
+};
+  
+
+//Swagger Documentation
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
 
 
 //Middlewares
@@ -32,7 +65,7 @@ app.get('/', (req, res) => {
     res.send('The api is working!');
 });
 
-//4eb614Q9oWLjlMm0
+
 //Connect to DB
 mongoose.connect(process.env.DB_CONNECTION,
     {useNewUrlParser: true}, 

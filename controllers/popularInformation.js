@@ -60,7 +60,7 @@ router.post('/postOneCompany', async (req, res) => {
             //console.log(err);
         }
     } else {
-        res.json({message: 'password incorrect'}).status(400);
+        res.status(400).json({message: 'password incorrect'});
     }
 
 })
@@ -101,7 +101,7 @@ router.post('/postManyCompanies', async (req, res) => {
             console.log(err);
         }
     } else {
-        res.json({message: 'password incorrect'}).status(400);
+        res.status(400).json({message: 'password incorrect'});
     }
 })
 
@@ -130,7 +130,7 @@ router.delete('/deleteOneCompany', async (req, res) => {
             res.json({message: err});
         }
     } else {
-        res.json({message: 'password incorrect'}).status(400);
+        res.status(400).json({message: 'password incorrect'});
     }
 })
 
@@ -152,7 +152,7 @@ router.patch('/updateOneCompany', async (req, res) => {
             res.json({message: err});
         }
     } else {
-        res.json({message: 'password incorrect'}).status(400);
+        res.status(400).json({message: 'password incorrect'});
     }
 });
 
@@ -202,7 +202,7 @@ router.patch('/updateManyCompanies', async (req, res) => {
             res.json({message: err});
         }
     } else {
-        res.json({message: 'password incorrect'}).status(400);
+        res.status(400).json({message: 'password incorrect'});
     }
 });
 
@@ -216,7 +216,7 @@ router.delete('/deleteAllCompanies', async (req, res) => {
             res.json({message: err});
         }
     } else {
-        res.json({message: 'password incorrect'}).status(400);
+        res.status(400).json({message: 'password incorrect'});
     }
 })
 
