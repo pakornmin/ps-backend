@@ -98,12 +98,14 @@ router.get('/getOneCompany/:url', async (req, res) => {
         let jsonBrandIssues = null;
         let jsonPoliticalData = null;
         let jsonPopularInfo = null;
+        let iconPath = '';
         let name = '';
         let url = '';
         if(brandIssues) {
             jsonBrandIssues = brandIssues.toJSON();
             name = jsonBrandIssues.name;
             url = jsonBrandIssues.url;
+            iconPath = jsonBrandIssues.iconPath;
             delete jsonBrandIssues._id;
             delete jsonBrandIssues.__v;
             delete jsonBrandIssues.name;
@@ -130,6 +132,7 @@ router.get('/getOneCompany/:url', async (req, res) => {
         const result = { 
                             name: name, 
                             url: url, 
+                            iconPath: iconPath,
                             category: jsonBrandIssues.category,
                             politicalData: jsonPoliticalData, 
                             popularInformation: jsonPopularInfo, 
@@ -410,6 +413,8 @@ router.get('/searchByName/:name', async (req, res) => {
  *                     type: string
  *                   category:
  *                     type: string
+ *                   shopStatus: 
+ *                     type: string
  *                   politicalData:
  *                     type: object
  *                     properties: 
@@ -426,9 +431,9 @@ router.get('/searchByName/:name', async (req, res) => {
  *                       democratEmployee:
  *                         type: number
  *                       analysis: 
- *                         type: number
+ *                         type: string
  *                       recomendation:
- *                         type: number
+ *                         type: string
  *                   popularInformation: 
  *                     type: object
  *                     properties:
@@ -459,6 +464,7 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
             let jsonPoliticalData = null;
             let jsonPopularInfo = null;
             const name = allCompanies[i].name;
+            let shopStatus = '';
             if(brandIssues) {
                 jsonBrandIssues = brandIssues.toJSON();
                 delete jsonBrandIssues._id;
@@ -472,7 +478,17 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
                 delete jsonPoliticalData.__v;
                 delete jsonPoliticalData.name;
                 delete jsonPoliticalData.url;
+                const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
+                const numIssue = jsonBrandIssues.length;
+                
+                if(percentDemocrat >= 0.6) {
+                    shopStatus = 'NO';
+                } else if(percentDemocrat >= 0.4 || numIssue>0) {
+                    shopStatus = 'OK';
+                } else {
+                    shopStatus = 'YES';
                 }
+            }
             if(popularInformation) {
                 jsonPopularInfo = popularInformation.toJSON();
                 delete jsonPopularInfo._id;
@@ -483,6 +499,7 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
             response.push({
                             name: name, 
                             url: url, 
+                            shopStatus: shopStatus,
                             category: jsonBrandIssues.category,
                             iconPath: jsonBrandIssues.iconPath,
                             politicalData: jsonPoliticalData, 
@@ -492,6 +509,7 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
         }
         res.json(response);
     } catch(err) {
+        console.log(err)
         res.status(400).json({message: "cannot get companies in the category"});
     }
 });
