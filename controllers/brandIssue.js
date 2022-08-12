@@ -392,6 +392,7 @@ router.patch('/updateOneCompany', async (req, res) => {
                 {url: req.body.company.url}, 
                 { $set: {
                     name: req.body.company.name,
+                    url: req.body.company.url,
                     category: req.body.company.category,
                     fullName: req.body.company.fullName,
                     iconPath: req.body.company.iconPath,
@@ -462,6 +463,7 @@ router.patch('/updateManyCompanies', async (req, res) => {
                         {url: companies[i].url}, 
                         { $set: {
                             name: companies[i].name, 
+                            url: companies[i].url,
                             category: companies[i].category,
                             fullName: companies[i].fullName,
                             iconPath: companies[i].iconPath,
@@ -477,6 +479,7 @@ router.patch('/updateManyCompanies', async (req, res) => {
                         {url: companies[i].url}, 
                         { $set: {
                             name: companies[i].name, 
+                            url: companies[i].url,
                             category: companies[i].category,
                             fullName: companies[i].fullName,
                             iconPath: companies[i].iconPath,

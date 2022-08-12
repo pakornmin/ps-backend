@@ -292,6 +292,7 @@ router.patch('/updateOneCategory', async (req, res) => {
             const upsertedCategory = await StoreCategory.findOneAndUpdate(
                 {category: req.body.category.category}, 
                 { $set: {
+                    category: req.body.category.category,
                     overall: req.body.category.overall
                 }},
                 { upsert: true, new: true }

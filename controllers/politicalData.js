@@ -379,6 +379,7 @@ router.patch('/updateOneCompany', async (req, res) => {
                 { $set: {
                     total: req.body.company.total,
                     totalDemocrat: req.body.company.totalDemocrat,
+                    url: req.body.company.url,
                     totalPAC: req.body.company.totalPAC,
                     democratPAC: req.body.company.democratPAC,
                     totalEmployee: req.body.company.totalEmployee,
@@ -450,6 +451,7 @@ router.patch('/updateManyCompanies', async (req, res) => {
                         { $set: {
                             total: companies[i].total,
                             totalDemocrat: companies[i].totalDemocrat,
+                            url: companies[i].url,
                             totalPAC: companies[i].totalPAC,
                             democratPAC: companies[i].democratPAC,
                             totalEmployee: companies[i].totalEmployee,
@@ -469,6 +471,7 @@ router.patch('/updateManyCompanies', async (req, res) => {
                             total: companies[i].total,
                             totalDemocrat: companies[i].totalDemocrat,
                             totalPAC: companies[i].totalPAC,
+                            url: companies[i].url,
                             democratPAC: companies[i].democratPAC,
                             totalEmployee: companies[i].totalEmployee,
                             democratEmployee: companies[i].democratEmployee,
