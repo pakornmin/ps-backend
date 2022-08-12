@@ -146,19 +146,19 @@ router.get('/getAllCompanies', async (req, res) => {
 router.post('/postOneCompany', async (req, res) => {
     if(req.body.password === process.env.password) {
         const company = new PoliticalData({
-            url: req.body.url,
-            total: req.body.total,
-            totalDemocrat: req.body.totalDemocrat,
-            totalPAC: req.body.totalPAC,
-            democratPAC: req.body.democratPAC,
-            totalEmployee: req.body.totalEmployee,
-            democratEmployee: req.body.democratEmployee,
-            analysis: req.body.analysis,
-            recomendation: req.body.recomendation
+            url: req.body.company.url,
+            total: req.body.company.total,
+            totalDemocrat: req.body.company.totalDemocrat,
+            totalPAC: req.body.company.totalPAC,
+            democratPAC: req.body.company.democratPAC,
+            totalEmployee: req.body.company.totalEmployee,
+            democratEmployee: req.body.company.democratEmployee,
+            analysis: req.body.company.analysis,
+            recomendation: req.body.company.recomendation
         });
     
         try {
-            const existedUrl = await Url.findOne({url: req.body.url})
+            const existedUrl = await Url.findOne({url: req.body.company.url})
             if(!existedUrl) {
                 const url =  new Url({
                     url: req.body.url
