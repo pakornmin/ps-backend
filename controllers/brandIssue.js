@@ -178,7 +178,7 @@ router.post('/postOneCompany', async (req, res) => {
             const existedUrl = await Url.findOne({url: req.body.company.url})
             if(!existedUrl) {
                 const url =  new Url({
-                    url: req.body.url
+                    url: req.body.company.url
                 });
                 const savedUrl = await url.save();
                 const savedCompany = await company.save();
