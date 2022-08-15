@@ -210,12 +210,16 @@ router.get('/getAllCompanies', async (req, res) => {
         const allUrl = await Url.find();
         let response = [];
         const length = allUrl.length;
-        console.log(length)
+        const allBrandIssues = listToDict(await BrandIssues.find());
+        const allPoliticalData = listToDict(await PoliticalData.find());
+        const allPopularInfo = listToDict(await PopularInformation.find());
+        //console.log(allBrandIssues);
+        //console.log(length)
         for(let i = 0; i < length; i++) {
             const url = allUrl[i].url;
-            const brandIssues = await BrandIssues.findOne({url: url});
-            const politicalData = await PoliticalData.findOne({url: url});
-            const popularInformation = await PopularInformation.findOne({url: url});
+            const brandIssues = allBrandIssues[url];
+            const politicalData = allPoliticalData[url];
+            const popularInformation = allPopularInfo[url];
             let jsonBrandIssues = null;
             let jsonPoliticalData = null;
             let jsonPopularInfo = null;
@@ -260,6 +264,7 @@ router.get('/getAllCompanies', async (req, res) => {
         }
         res.json(response);
     } catch(err) {
+        console.log(err);
         res.status(400).json({message: "cannot get all companies' information"});
     }
 });
@@ -514,6 +519,19 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
     }
 });
 
+
+
+
+function listToDict(arr) {
+    const dict = {};
+    const length = arr.length;
+    for(let i = 0; i < length; i++) {
+        const url = arr[i].url;
+        dict[url] = arr[i];
+    }
+
+    return dict;
+}
 
 
 module.exports = router;

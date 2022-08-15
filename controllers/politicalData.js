@@ -321,7 +321,7 @@ router.get('/getOneCompany/:url', async (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/politicalData'
+ *               $ref: '#/components/schemas/PoliticalData'
  *       400:
  *         description: password incorrect/ unable to delete a company
  */
