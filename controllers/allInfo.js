@@ -92,9 +92,18 @@ router.get('/', (req, res)=>{
 //get all information about one company
 router.get('/getOneCompany/:url', async (req, res) => {
     try {
+        //let start = performance.now();
         const politicalData = await PoliticalData.findOne({url: req.params.url});
+        //let stop = performance.now();
+        //console.log("time 1: ", stop - start);
+        //start = performance.now();
         const popularInformation = await PopularInformation.findOne({url: req.params.url});
+        //stop = performance.now();
+        //console.log("time 2: ", stop - start);
+        //start = performance.now();
         const brandIssues = await BrandIssues.findOne({url: req.params.url});
+        // stop = performance.now();
+        //console.log("time 3: ", stop - start);
         let jsonBrandIssues = null;
         let jsonPoliticalData = null;
         let jsonPopularInfo = null;
@@ -337,13 +346,15 @@ router.get('/getAllCompanies', async (req, res) => {
 router.get('/searchByName/:name', async (req, res) => {
     try {
         const allCompanies= await BrandIssues.find();
+        const allPoliticalData = listToDict(await PoliticalData.find());
+        const allPopularInfo = listToDict(await PopularInformation.find());
         let response = [];
         const length = allCompanies.length;
         for(let i = 0; i < length; i++) {
             if(allCompanies[i].name.toLowerCase().indexOf(req.params.name.toLowerCase()) !== -1) {
                 const url = allCompanies[i].url;
-                const politicalData = await PoliticalData.findOne({url: url});
-                const popularInformation = await PopularInformation.findOne({url: url});
+                const politicalData = allPoliticalData[url];
+                const popularInformation = allPopularInfo[url];
                 const brandIssues = allCompanies[i];
                 let jsonBrandIssues = null;
                 let jsonPoliticalData = null;
@@ -458,12 +469,15 @@ router.get('/searchByName/:name', async (req, res) => {
 router.get('/getCompaniesByCategory/:category', async (req, res) => {
     try {
         const allCompanies = await BrandIssues.find({category: req.params.category});
+        //const allBrandIssues = listToDict(await BrandIssues.find());
+        const allPoliticalData = listToDict(await PoliticalData.find());
+        const allPopularInfo = listToDict(await PopularInformation.find());
         let response = [];
         const length = allCompanies.length;
         for(let i = 0; i < length; i++) {
             const url = allCompanies[i].url;
-            const politicalData = await PoliticalData.findOne({url: url});
-            const popularInformation = await PopularInformation.findOne({url: url});
+            const politicalData = allPoliticalData[url];
+            const popularInformation = allPopularInfo[url];
             const brandIssues = allCompanies[i];
             let jsonBrandIssues = null;
             let jsonPoliticalData = null;
