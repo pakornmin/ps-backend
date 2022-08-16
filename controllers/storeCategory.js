@@ -214,6 +214,53 @@ router.get('/getOneCategory/:categoryName', async (req, res) => {
     }
 })
 
+/**
+ * @swagger
+ * /storeCategory/searchCategory/{searchInput}:
+ *   get:
+ *     summary: search category
+ *     tags: [Category]
+ *     parameters:
+ *       - in: path
+ *         name: searchInput
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: search query
+ *     responses:
+ *       200:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Category'
+ *       400:
+ *         description: The action was not found
+ */
+//get one category by name
+router.get('/searchCategory/:searchInput', async (req, res) => {
+    try {
+        const allCategories = await StoreCategory.find();
+        //console.log(allCategories);
+        const matchedCategories = [];
+        for(let i = 0; i < allCategories.length; i++) {
+            //console.log(allCategories[i].category.toLowerCase());
+            //console.log(req.params.searchInput.toLowerCase());
+            if(allCategories[i].category.toLowerCase().indexOf(req.params.searchInput.toLowerCase()) != -1){
+                const jsonResult = allCategories[i].toJSON();
+                delete jsonResult._id;
+                delete jsonResult.__v;
+                //console.log()
+                matchedCategories.push(jsonResult);
+            }
+        }
+        res.json(matchedCategories);
+    } catch(err) {
+        //console.log(err);
+        res.status(400).json("category does not exist")
+    }
+})
 
 
 /**

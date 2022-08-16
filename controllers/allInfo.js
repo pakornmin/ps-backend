@@ -62,6 +62,8 @@ router.get('/', (req, res)=>{
  *                       type: number
  *                     totalDemocrat: 
  *                       type: number
+ *                     percentTotalDemocrat:
+ *                       type: number
  *                     totalPAC:
  *                       type: number
  *                     democratPAC:
@@ -123,11 +125,21 @@ router.get('/getOneCompany/:url', async (req, res) => {
         if(politicalData) {
             jsonPoliticalData = politicalData.toJSON();
             url = jsonPoliticalData.url;
+            const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
+            jsonPoliticalData.percentTotalDemocrat = parseInt(percentDemocrat * 100);
+            const numIssue = jsonBrandIssues.issueList.length;
+            if(percentDemocrat >= 0.6 && numIssue == 0) {
+                jsonPoliticalData.shopStatus = 'NO';
+            } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
+                jsonPoliticalData.shopStatus = 'OK';
+            } else {
+                jsonPoliticalData.shopStatus = 'YES';
+            }
             delete jsonPoliticalData._id;
             delete jsonPoliticalData.__v;
             delete jsonPoliticalData.name;
             delete jsonPoliticalData.url;
-            }
+        }
         if(popularInformation) {
             jsonPopularInfo = popularInformation.toJSON();
             name = jsonPopularInfo.name;
@@ -438,6 +450,8 @@ router.get('/searchByName/:name', async (req, res) => {
  *                         type: number
  *                       totalDemocrat: 
  *                         type: number
+ *                       percentTotalDemocrat:
+ *                         type: number
  *                       totalPAC:
  *                         type: number
  *                       democratPAC:
@@ -468,63 +482,66 @@ router.get('/searchByName/:name', async (req, res) => {
 //get companies by category 
 router.get('/getCompaniesByCategory/:category', async (req, res) => {
     try {
-        const allCompanies = await BrandIssues.find({category: req.params.category});
+        const allCompanies = await BrandIssues.find();
         //const allBrandIssues = listToDict(await BrandIssues.find());
         const allPoliticalData = listToDict(await PoliticalData.find());
         const allPopularInfo = listToDict(await PopularInformation.find());
         let response = [];
         const length = allCompanies.length;
         for(let i = 0; i < length; i++) {
-            const url = allCompanies[i].url;
-            const politicalData = allPoliticalData[url];
-            const popularInformation = allPopularInfo[url];
-            const brandIssues = allCompanies[i];
-            let jsonBrandIssues = null;
-            let jsonPoliticalData = null;
-            let jsonPopularInfo = null;
-            const name = allCompanies[i].name;
-            let shopStatus = '';
-            if(brandIssues) {
-                jsonBrandIssues = brandIssues.toJSON();
-                delete jsonBrandIssues._id;
-                delete jsonBrandIssues.__v;
-                delete jsonBrandIssues.name;
-                delete jsonBrandIssues.url;
-            }
-            if(politicalData) {
-                jsonPoliticalData = politicalData.toJSON();
-                delete jsonPoliticalData._id;
-                delete jsonPoliticalData.__v;
-                delete jsonPoliticalData.name;
-                delete jsonPoliticalData.url;
-                const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
-                const numIssue = jsonBrandIssues.length;
-                
-                if(percentDemocrat >= 0.6) {
-                    shopStatus = 'NO';
-                } else if(percentDemocrat >= 0.4 || numIssue>0) {
-                    shopStatus = 'OK';
-                } else {
-                    shopStatus = 'YES';
+            if(allCompanies[i].category.toLowerCase().indexOf(req.params.category.toLowerCase()) != -1) {
+                const url = allCompanies[i].url;
+                const politicalData = allPoliticalData[url];
+                const popularInformation = allPopularInfo[url];
+                const brandIssues = allCompanies[i];
+                let jsonBrandIssues = null;
+                let jsonPoliticalData = null;
+                let jsonPopularInfo = null;
+                const name = allCompanies[i].name;
+                let shopStatus = '';
+                if(brandIssues) {
+                    jsonBrandIssues = brandIssues.toJSON();
+                    delete jsonBrandIssues._id;
+                    delete jsonBrandIssues.__v;
+                    delete jsonBrandIssues.name;
+                    delete jsonBrandIssues.url;
                 }
+                if(politicalData) {
+                    jsonPoliticalData = politicalData.toJSON();
+                    delete jsonPoliticalData._id;
+                    delete jsonPoliticalData.__v;
+                    delete jsonPoliticalData.name;
+                    delete jsonPoliticalData.url;
+                    const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
+                    jsonPoliticalData.percentTotalDemocrat = parseInt(percentDemocrat * 100);
+                    const numIssue = jsonBrandIssues.length;
+                    
+                    if(percentDemocrat >= 0.6 && numIssue == 0) {
+                        shopStatus = 'NO';
+                    } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
+                        shopStatus = 'OK';
+                    } else {
+                        shopStatus = 'YES';
+                    }
+                }
+                if(popularInformation) {
+                    jsonPopularInfo = popularInformation.toJSON();
+                    delete jsonPopularInfo._id;
+                    delete jsonPopularInfo.__v;
+                    delete jsonPopularInfo.name;
+                    delete jsonPopularInfo.url;
+                }
+                response.push({
+                                name: name, 
+                                url: url, 
+                                shopStatus: shopStatus,
+                                category: jsonBrandIssues.category,
+                                iconPath: jsonBrandIssues.iconPath,
+                                politicalData: jsonPoliticalData, 
+                                popularInformation: jsonPopularInfo, 
+                                issueList: jsonBrandIssues.issueList
+                });
             }
-            if(popularInformation) {
-                jsonPopularInfo = popularInformation.toJSON();
-                delete jsonPopularInfo._id;
-                delete jsonPopularInfo.__v;
-                delete jsonPopularInfo.name;
-                delete jsonPopularInfo.url;
-            }
-            response.push({
-                            name: name, 
-                            url: url, 
-                            shopStatus: shopStatus,
-                            category: jsonBrandIssues.category,
-                            iconPath: jsonBrandIssues.iconPath,
-                            politicalData: jsonPoliticalData, 
-                            popularInformation: jsonPopularInfo, 
-                            issueList: jsonBrandIssues.issueList
-            });
         }
         res.json(response);
     } catch(err) {
