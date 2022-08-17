@@ -126,7 +126,7 @@ router.get('/getAllCompanies', async (req, res) => {
             delete jsonPlaceholder.__v;
             result.push(jsonPlaceholder);
         }
-        console.log(result);
+        //console.log(result);
         res.json(result);
     } catch(err) {
         res.status(400).json({message: "cannot get all companies"});

@@ -1,4 +1,5 @@
 const express = require('express');
+const BrandIssues = require('../models/BrandIssues');
 const router = express.Router();
 const PoliticalData = require('../models/PoliticalData');
 const Url = require('../models/Url');
@@ -59,7 +60,6 @@ require('dotenv').config();
  *         "democratEmployee": 3876
  *         "analysis": "Example analysis."
  *         "recomendation": "Highly Recommended"
- *    
  */
 
 /**
@@ -97,16 +97,33 @@ router.get('/', (req, res) => {
 router.get('/getAllCompanies', async (req, res) => {
     try {
         const companies = await PoliticalData.find();
+        const allBrandIssues  = listToDict(await BrandIssues.find());
         const result = [];
         const length = companies.length;
         for(let i = 0; i < length; i++) {
-            const jsonPlaceholder = companies[i].toJSON();
-            delete jsonPlaceholder._id;
-            delete jsonPlaceholder.__v;
-            result.push(jsonPlaceholder);
+            const url = companies[i].url;
+            const jsonPoliticalData = companies[i].toJSON();
+            delete jsonPoliticalData._id;
+            delete jsonPoliticalData.__v;
+            const jsonBrandIssues = allBrandIssues[url];
+            const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
+            jsonPoliticalData.percentTotalDemocrat = parseInt(percentDemocrat * 100);
+            let numIssue = 0;
+            if(jsonBrandIssues) {
+                numIssue = jsonBrandIssues.issueList.length;
+            }
+            if(percentDemocrat >= 0.6 && numIssue == 0) {
+                jsonPoliticalData.shopStatus = 'NO';
+            } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
+                jsonPoliticalData.shopStatus = 'OK';
+            } else {
+                jsonPoliticalData.shopStatus = 'YES';
+            }
+            result.push(jsonPoliticalData);
         }
         res.json(result);
     } catch(err) {
+        console.log(err);
         res.status(400).json({message: "cannot get all companies"});
     }
 });
@@ -286,10 +303,26 @@ router.post('/postManyCompanies', async (req, res) => {
 router.get('/getOneCompany/:url', async (req, res) => {
     try {
         const foundCompany = await PoliticalData.findOne({url: req.params.url});
-        const jsonResult = foundCompany.toJSON();
-        delete jsonResult._id;
-        delete jsonResult.__v;
-        res.json(jsonResult);
+        const brandIssue = await BrandIssues.findOne({url: req.params.url});
+
+        const jsonPoliticalData = foundCompany.toJSON();
+        const jsonBrandIssues = brandIssue.toJSON();
+        delete jsonPoliticalData._id;
+        delete jsonPoliticalData.__v;
+        const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
+            jsonPoliticalData.percentTotalDemocrat = parseInt(percentDemocrat * 100);
+            let numIssue = 0;
+            if(jsonBrandIssues) {
+                numIssue = jsonBrandIssues.issueList.length;
+            }
+            if(percentDemocrat >= 0.6 && numIssue == 0) {
+                jsonPoliticalData.shopStatus = 'NO';
+            } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
+                jsonPoliticalData.shopStatus = 'OK';
+            } else {
+                jsonPoliticalData.shopStatus = 'YES';
+            }
+        res.json(jsonPoliticalData);
     } catch(err) {
         res.status(400).json({message: "url does not existed"});
     }
@@ -530,6 +563,19 @@ router.delete('/deleteAllCompanies', async (req, res) => {
         res.status(400).json({message: 'password incorrect'});
     }
 })
+
+
+function listToDict(arr) {
+    const dict = {};
+    const length = arr.length;
+    for(let i = 0; i < length; i++) {
+        const url = arr[i].url;
+        dict[url] = arr[i];
+    }
+
+    return dict;
+}
+
 
 
 module.exports = router;

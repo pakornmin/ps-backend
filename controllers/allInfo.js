@@ -127,7 +127,10 @@ router.get('/getOneCompany/:url', async (req, res) => {
             url = jsonPoliticalData.url;
             const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
             jsonPoliticalData.percentTotalDemocrat = parseInt(percentDemocrat * 100);
-            const numIssue = jsonBrandIssues.issueList.length;
+            let numIssue = 0;
+            if(jsonBrandIssues) {
+                numIssue = jsonBrandIssues.issueList.length;
+            }
             if(percentDemocrat >= 0.6 && numIssue == 0) {
                 jsonPoliticalData.shopStatus = 'NO';
             } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
@@ -248,6 +251,7 @@ router.get('/getAllCompanies', async (req, res) => {
             let category = null;
             let iconPath = null;
             let issueList = [];
+            //let shopStatus = '';
             if(brandIssues) {
                 jsonBrandIssues = brandIssues.toJSON();
                 name =  jsonBrandIssues.name;
@@ -265,7 +269,22 @@ router.get('/getAllCompanies', async (req, res) => {
                 delete jsonPoliticalData.__v;
                 delete jsonPoliticalData.name;
                 delete jsonPoliticalData.url;
+                const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
+                jsonPoliticalData.percentTotalDemocrat = parseInt(percentDemocrat * 100);
+                let numIssue = 0;
+                if(jsonBrandIssues) {
+                    numIssue = jsonBrandIssues.issueList.length;
                 }
+                //numIssue = jsonBrandIssues.issueList.length;
+                
+                if(percentDemocrat >= 0.6 && numIssue == 0) {
+                    jsonPoliticalData.shopStatus = 'NO';
+                } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
+                    jsonPoliticalData.shopStatus = 'OK';
+                } else {
+                    jsonPoliticalData.shopStatus = 'YES';
+                }
+            }
             if(popularInformation) {
                 jsonPopularInfo = popularInformation.toJSON();
                 delete jsonPopularInfo._id;
@@ -372,6 +391,7 @@ router.get('/searchByName/:name', async (req, res) => {
                 let jsonPoliticalData = null;
                 let jsonPopularInfo = null;
                 const name = allCompanies[i].name;
+                //let shopStatus = '';
                 if(brandIssues) {
                     jsonBrandIssues = brandIssues.toJSON();
                     delete jsonBrandIssues._id;
@@ -385,7 +405,21 @@ router.get('/searchByName/:name', async (req, res) => {
                     delete jsonPoliticalData.__v;
                     delete jsonPoliticalData.name;
                     delete jsonPoliticalData.url;
+                    const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
+                    jsonPoliticalData.percentTotalDemocrat = parseInt(percentDemocrat * 100);
+                    let numIssue = 0;
+                    if(jsonBrandIssues) {
+                        numIssue = jsonBrandIssues.issueList.length;
                     }
+                    
+                    if(percentDemocrat >= 0.6 && numIssue == 0) {
+                        jsonPoliticalData.shopStatus = 'NO';
+                    } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
+                        jsonPoliticalData.shopStatus = 'OK';
+                    } else {
+                        jsonPoliticalData.shopStatus = 'YES';
+                    }
+                }
                 if(popularInformation) {
                     jsonPopularInfo = popularInformation.toJSON();
                     delete jsonPopularInfo._id;
@@ -513,7 +547,10 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
                 delete jsonPoliticalData.url;
                 const percentDemocrat = jsonPoliticalData.totalDemocrat / jsonPoliticalData.total;
                 jsonPoliticalData.percentTotalDemocrat = parseInt(percentDemocrat * 100);
-                const numIssue = jsonBrandIssues.length;
+                let numIssue = 0;
+                if(jsonBrandIssues) {
+                    numIssue = jsonBrandIssues.issueList.length;
+                }
                 
                 if(percentDemocrat >= 0.6 && numIssue == 0) {
                     shopStatus = 'NO';
@@ -543,7 +580,8 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
         }
         res.json(response);
     } catch(err) {
-        console.log(err)
+        console.log(err);
+        console,log(url);
         res.status(400).json({message: "cannot get companies in the category"});
     }
 });
