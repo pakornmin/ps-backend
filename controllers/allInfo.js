@@ -516,7 +516,7 @@ router.get('/searchByName/:name', async (req, res) => {
 //get companies by category 
 router.get('/getCompaniesByCategory/:category', async (req, res) => {
     try {
-        const allCompanies = await BrandIssues.find({category: req.params.category});
+        const allCompanies = await BrandIssues.find({category: { $regex: req.params.category, $options: 'i'}});
         //const allBrandIssues = listToDict(await BrandIssues.find());
         const allPoliticalData = listToDict(await PoliticalData.find());
         const allPopularInfo = listToDict(await PopularInformation.find());
