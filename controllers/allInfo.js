@@ -132,11 +132,11 @@ router.get('/getOneCompany/:url', async (req, res) => {
                 numIssue = jsonBrandIssues.issueList.length;
             }
             if(percentDemocrat >= 0.6 && numIssue == 0) {
-                jsonPoliticalData.shopStatus = 'NO';
+                jsonPoliticalData.shopStatus = 'YES';
             } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
                 jsonPoliticalData.shopStatus = 'OK';
             } else {
-                jsonPoliticalData.shopStatus = 'YES';
+                jsonPoliticalData.shopStatus = 'NO';
             }
             delete jsonPoliticalData._id;
             delete jsonPoliticalData.__v;
@@ -278,11 +278,11 @@ router.get('/getAllCompanies', async (req, res) => {
                 //numIssue = jsonBrandIssues.issueList.length;
                 
                 if(percentDemocrat >= 0.6 && numIssue == 0) {
-                    jsonPoliticalData.shopStatus = 'NO';
+                    jsonPoliticalData.shopStatus = 'YES';
                 } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
                     jsonPoliticalData.shopStatus = 'OK';
                 } else {
-                    jsonPoliticalData.shopStatus = 'YES';
+                    jsonPoliticalData.shopStatus = 'NO';
                 }
             }
             if(popularInformation) {
@@ -413,11 +413,11 @@ router.get('/searchByName/:name', async (req, res) => {
                     }
                     
                     if(percentDemocrat >= 0.6 && numIssue == 0) {
-                        jsonPoliticalData.shopStatus = 'NO';
+                        jsonPoliticalData.shopStatus = 'YES';
                     } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
                         jsonPoliticalData.shopStatus = 'OK';
                     } else {
-                        jsonPoliticalData.shopStatus = 'YES';
+                        jsonPoliticalData.shopStatus = 'NO';
                     }
                 }
                 if(popularInformation) {
@@ -553,11 +553,11 @@ router.get('/getCompaniesByCategory/:category', async (req, res) => {
                 }
                 
                 if(percentDemocrat >= 0.6 && numIssue == 0) {
-                    shopStatus = 'NO';
+                    shopStatus = 'YES';
                 } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
                     shopStatus = 'OK';
                 } else {
-                    shopStatus = 'YES';
+                    shopStatus = 'NO';
                 }
             }
             if(popularInformation) {

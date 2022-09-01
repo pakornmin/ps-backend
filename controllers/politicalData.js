@@ -113,11 +113,11 @@ router.get('/getAllCompanies', async (req, res) => {
                 numIssue = jsonBrandIssues.issueList.length;
             }
             if(percentDemocrat >= 0.6 && numIssue == 0) {
-                jsonPoliticalData.shopStatus = 'NO';
+                jsonPoliticalData.shopStatus = 'YES';
             } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
                 jsonPoliticalData.shopStatus = 'OK';
             } else {
-                jsonPoliticalData.shopStatus = 'YES';
+                jsonPoliticalData.shopStatus = 'NO';
             }
             result.push(jsonPoliticalData);
         }
@@ -316,11 +316,11 @@ router.get('/getOneCompany/:url', async (req, res) => {
                 numIssue = jsonBrandIssues.issueList.length;
             }
             if(percentDemocrat >= 0.6 && numIssue == 0) {
-                jsonPoliticalData.shopStatus = 'NO';
+                jsonPoliticalData.shopStatus = 'YES';
             } else if((percentDemocrat >= 0.4 && percentDemocrat < 0.6) || (percentDemocrat >= 0.6 && numIssue>0)) {
                 jsonPoliticalData.shopStatus = 'OK';
             } else {
-                jsonPoliticalData.shopStatus = 'YES';
+                jsonPoliticalData.shopStatus = 'NO';
             }
         res.json(jsonPoliticalData);
     } catch(err) {
